@@ -1,0 +1,154 @@
+\documentclass[a4paper,12pt,oneside,onecolumn]{article} % Document type
+
+\usepackage[left=1.0in, right=1.0in, top=1.0in, bottom=1.0in]{geometry}
+
+\usepackage{fontspec}
+\setmainfont{cmr12}
+\usepackage{amsmath,amssymb}   % Contains mathematical symbols
+\usepackage{xltxtra}
+\defaultfontfeatures{Ligatures=TeX}
+\usepackage[english]{babel}    % Language
+\usepackage[square,numbers]{natbib}     %Nice numbered citations
+\bibliographystyle{plainnat}            %Sorted bibliography
+\usepackage{float}
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usepackage{lscape}
+\usepackage{graphicx}
+\usepackage{pstricks}
+\usepackage{subfigure}
+\usepackage{multicol}
+\usepackage{caption}
+\usepackage{rotating}
+\usepackage{lastpage}
+\usepackage{slantsc}
+\usepackage{lmodern}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\lhead{Filotheou}
+\rhead{EL2520}
+\chead{H-inf control, Robustness}
+\rfoot{Page \thepage\ of \pageref{LastPage}}
+\cfoot{}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\title{
+	Computer Exercise 3\\
+	EL2520 Control Theory and Practice
+}
+\author{
+  Alexandros Filotheou \\
+  alefil@kth.se \\
+  871108-5590
+}
+
+\newcommand{\imageg}[3][width=1.0\columnwidth]{
+	\begin{figure}[H]
+		\centering
+	    \includegraphics[#1]{#2}
+		\caption{#3}
+		\label{fig:#2}
+	\end{figure}
+}
+
+\newcommand{\imaget}[3][width=1.0\columnwidth]{
+	\begin{figure}[H]
+		\centering
+      \input{#2}
+		\caption{#3}
+		\label{fig:#2}
+	\end{figure}
+}
+
+\begin{document}
+	\maketitle
+
+	% Suppression of disturbances
+	\section*{Suppression of disturbances}
+
+  The process to be controlled is identified by the transfer function $G$:
+
+  \begin{align*}
+    G(s) &= 10^4 \dfrac{s+2}{(s+3)(s+100)^2}
+  \end{align*}
+	The weight $W_S$ is
+	\begin{align*}
+    W_S(s) &= \dfrac{10^4}{(s+p_1)(s+p_2)}  \\
+    p_k &= -0.1 \pm i\sqrt{(100\pi)^2 - 0.1^2}, k = \{1,2\}
+	\end{align*}
+
+  Figure \ref{fig:figures/macro_1.pdf} illustrates the amplitudes of the reference
+  signal ($0.0$), the output, the control signal ($10.0$) and the disturbance
+  ($1.0$). The amplitude of the output is at most $3\cdot10^{-5}$
+  in steady-state, hence the rate between the disturbance and the output
+  oscillations is approximately $3\cdot10^5$.
+
+  If the controller was a proportional one, it would need to have a value around
+  $10^8$ for the disturbances to be damped equally well as in the above case.
+  However, in this case the amplitude of the control signal would increase by
+  $2$ orders of magnitude. At the same time, a P-controller would treat all
+  frequencies in the same manner, i.e. it would attenuate all frequencies
+  equally; not just the $50$ Hz one.
+
+  \imageg{figures/macro_1.pdf}{Simulation results with system $G$, using $W_S$.}
+
+  \newpage
+
+	% Robustness
+	\section*{Robustness}
+
+  The system's transfer function is now given by $G_0$:
+
+  \begin{align*}
+    G_0(s) &= G(s)(1+\Delta_G(s)) = 10^4 \dfrac{s+2}{(s+3)(s+100)^2} \cdot \dfrac{s-1}{s+2}
+  \end{align*}
+
+  Here, $\Delta_G(s) = -\dfrac{3}{s+2}$, which is stable. According to the small
+  gain theorem, the closed loop is stable if
+
+  \begin{align*}
+    |T(i\omega)\cdot\Delta_G(i\omega)| &< 1 \Leftrightarrow  \\
+    |T(i\omega)| &< \Big|\dfrac{i\omega+2}{3}\Big|
+  \end{align*}
+
+  Hence the weight $W_T$ can be chosen as $-\Delta_G$. The weights are then:
+	\begin{align*}
+    W_S(s) &= \dfrac{10^4}{(s+p_1)(s+p_2)} \\
+    W_T(s) &= \dfrac{3}{s+2}
+	\end{align*}
+  where $p_k = -0.1 \pm i\sqrt{(100\pi)^2 - 0.1^2}, k = \{1,2\}$.  Figure
+  \ref{fig:figures/small_gain_2.tex} illustrates that the small gain theorem
+  holds: the amplitude of $T\cdot\Delta_G$ is less than one for all frequencies.
+  Figure \ref{fig:figures/macro_2.pdf} illustrates the amplitudes of the
+  reference signal ($0.0$), the output, the control signal ($\approx10.0$) and
+  the disturbance ($1.0$). The amplitude of the output is less than
+  $5\cdot10^{-4}$ in steady-state, hence the rate between the disturbance and
+  the output oscillations is approximately $2000$, which is less than in the
+  previous case.
+
+
+  \imaget{figures/small_gain_2.tex}{Bode diagram of $T(i\omega)\cdot\Delta_G(i\omega)$. The
+    amplitude is always less than 1, hence the small gain theorem is fulfilled.}
+
+	\imageg{figures/macro_2.pdf}{Simulation results with system $G_0$, using $W_S$ and $W_T$.}
+
+  \newpage
+
+	% Control signal
+	\section*{Control signal}
+
+	The weights are
+	\begin{align*}
+    W_S(s) &= \dfrac{100}{(s+p_1)(s+p_2)} \\
+    W_T(s) &= \dfrac{3}{s+2}              \\
+		W_U(s) &= \dfrac{100}{(s+p_1)(s+p_2)}
+	\end{align*}
+  where $p_k = -0.1 \pm i\sqrt{(100\pi)^2 - 0.1^2}, k = \{1,2\}$.
+
+	\imageg{figures/macro_3.pdf}{Simulation results with system $G_0$, using $W_S$, $W_T$ and $W_U$.}
+
+  We can see that a specification on the control signal $u$ to be halved results
+  in inadmissible output signal: its value instead of following the reference
+  signal shoots up to an amplitude of $0.5$.
+
+\end{document}
